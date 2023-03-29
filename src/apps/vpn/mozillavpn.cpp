@@ -100,6 +100,11 @@ Logger logger("MozillaVPN");
 MozillaVPN* s_instance = nullptr;
 bool s_mockFreeTrial = false;
 QString s_updateVersion;
+
+//Force various connection health states
+bool s_stableConnectionHealth = false;
+bool s_unstableConnectionHealth = false;
+bool s_noSignalConnectionHealth = false;
 }  // namespace
 
 // static
@@ -1805,6 +1810,9 @@ void MozillaVPN::registerNavigationBarButtons() {
 
 // static
 bool MozillaVPN::mockFreeTrial() { return s_mockFreeTrial; }
+bool MozillaVPN::forceStableConnectionHealth() { return s_stableConnectionHealth; }
+bool MozillaVPN::forceUnstableConnectionHealth() { return s_unstableConnectionHealth; }
+bool MozillaVPN::forceNoSignalConnectionHealth() { return s_noSignalConnectionHealth; }
 
 // static
 void MozillaVPN::registerInspectorCommands() {
@@ -2130,6 +2138,14 @@ void MozillaVPN::registerInspectorCommands() {
         MozillaVPN::instance()->controller()->quit();
         return QJsonObject();
       });
+    
+    InspectorHandler::registerCommand(
+        "force_no_signal_connection",
+        "Force VPN connection to No Signal connection", 0,
+        [](InspectorHandler*, const QList<QByteArray>&) {
+            MozillaVPN::instance()->connectionHealth()->setStability(ConnectionHealth::ConnectionStability::NoSignal);
+          return QJsonObject();
+        });
 }
 
 // static
