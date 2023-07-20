@@ -12,6 +12,7 @@ if(NOT MSVC AND NOT IOS)
 endif()
 
 target_link_libraries(mozillavpn PRIVATE
+    Qt6::Qml
     Qt6::Quick
     Qt6::Test
     Qt6::WebSockets

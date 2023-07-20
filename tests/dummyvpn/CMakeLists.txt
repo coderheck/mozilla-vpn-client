@@ -8,6 +8,7 @@
 qt_add_executable(dummyvpn MANUAL_FINALIZATION)
 
 target_link_libraries(dummyvpn PRIVATE
+    Qt6::Qml
     Qt6::Quick
     Qt6::Test
     Qt6::WebSockets
