@@ -214,13 +214,21 @@ target_sources(mozillavpn-sources INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/apps/vpn/update/webupdater.h
 )
 
-# VPN Client UI resources
+# QRC Resource content
 target_sources(mozillavpn-sources INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/apps/vpn/ui/resources.qrc
     ${CMAKE_CURRENT_SOURCE_DIR}/apps/vpn/ui/ui.qrc
     ${CMAKE_CURRENT_SOURCE_DIR}/apps/vpn/resources/certs/certs.qrc
     ${CMAKE_CURRENT_SOURCE_DIR}/apps/vpn/resources/public_keys/public_keys.qrc
 )
+
+# VPN Client UI/QML module
+qt_add_library(mozillavpnui STATIC)
+qt6_add_qml_module(mozillavpnui
+  URI Mozilla.Shared.qmlcomponents
+  VERSION 1.0
+)
+target_link_libraries(mozillavpn-sources INTERFACE mozillavpnuiplugin)
 
 # Sources for desktop platforms.
 if(NOT CMAKE_CROSSCOMPILING)

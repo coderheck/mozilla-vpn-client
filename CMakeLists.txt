@@ -158,9 +158,6 @@ if(NOT CMAKE_CROSSCOMPILING)
     add_subdirectory(tests/qml EXCLUDE_FROM_ALL)
     add_subdirectory(src/apps/auth_tests EXCLUDE_FROM_ALL)
     add_subdirectory(src/apps/unit_tests EXCLUDE_FROM_ALL)
-
-    # Dummy Testing Client
-    add_subdirectory(tests/dummyvpn EXCLUDE_FROM_ALL)
 endif()
 
 # Extra platform targets

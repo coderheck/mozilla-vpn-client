@@ -63,8 +63,8 @@ jobs:
 
           mkdir -p build/profile
           rsync -a --include '*/' --include '*.gcno' --exclude '*' \
-              build/cmake/tests/dummyvpn/CMakeFiles/dummyvpn.dir/ build/profile/
-          cp ./build/cmake/tests/dummyvpn/dummyvpn build/
+              build/cmake/src/CMakeFiles/dummyvpn.dir/ build/profile/
+          cp ./build/cmake/src/dummyvpn build/
 
       - name: Compile test addons
         shell: bash

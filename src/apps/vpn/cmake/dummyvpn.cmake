@@ -5,14 +5,17 @@
 # For CMake versions prior to 3.19, we may need to perform manual
 # finalization in order to pick up QML dependencies when built
 # statically.
-qt_add_executable(dummyvpn MANUAL_FINALIZATION)
+qt_add_executable(dummyvpn MANUAL_FINALIZATION EXCLUDE_FROM_ALL)
 
 target_link_libraries(dummyvpn PRIVATE
+    Qt6::Core
+    Qt6::Gui
     Qt6::Qml
     Qt6::Quick
     Qt6::Test
     Qt6::WebSockets
     Qt6::Widgets
+    Qt6::Svg
 )
 
 if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten" 
@@ -47,10 +50,5 @@ endif()
 
 target_compile_definitions(dummyvpn PRIVATE MZ_DEBUG)
 target_compile_definitions(dummyvpn PRIVATE MZ_DUMMY)
-
-qt6_add_qml_module(dummyvpn
-  URI Mozilla.Shared.qmlcomponents
-  VERSION 1.0
-)
 
 qt_finalize_target(dummyvpn)

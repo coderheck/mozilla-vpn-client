@@ -94,6 +94,10 @@
 #endif
 
 #include <QApplication>
+#include <QQmlApplicationEngine>
+#include <QtQml/qqmlextensionplugin.h>
+
+Q_IMPORT_QML_PLUGIN(Mozilla_Shared_qmlcomponentsPlugin)
 
 namespace {
 Logger logger("CommandUI");

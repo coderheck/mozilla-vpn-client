@@ -83,11 +83,11 @@ built by default. To build the `dummyvpn` target, in the root folder of this rep
 cmake --build build -j$(nproc) --target dummyvpn
 ```
 
-This will create a dummy build under the `tests/dummyvpn` folder. To run the functional
+This will create a dummy build under the `src` folder. To run the functional
 tests against this build, make sure the `MVPN_BIN` environment variable is set:
 
 ```
-export MVPN_BIN=$(pwd)/build/tests/dummyvpn/dummyvpn
+export MVPN_BIN=$(pwd)/build/src/dummyvpn
 ```
 
 **Other dependencies**:

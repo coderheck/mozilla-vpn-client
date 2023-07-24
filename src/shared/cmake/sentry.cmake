@@ -27,6 +27,9 @@ if( ${_SUPPORTED} GREATER -1 )
     # Let's the app know we need to provide the upload client
     target_compile_definitions(shared-sources INTERFACE SENTRY_NONE_TRANSPORT)
 
+    # Private QML headers are needed for QML backtracing.
+    target_link_libraries(shared-sources INTERFACE Qt6::QmlPrivate)
+
     # Sentry support is given
     target_sources(shared-sources INTERFACE
         shared/sentry/sentryadapter.cpp
