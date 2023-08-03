@@ -142,8 +142,8 @@ target_sources(shared-sources INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/shared/inspector/inspectorutils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/shared/inspector/inspectorwebchannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shared/inspector/inspectorwebchannel.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/shared/inspector/inspectorwebchanneltransport.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shared//inspector/inspectorwebchanneltransport.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/shared/inspector/inspectorwebsockettransport.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shared//inspector/inspectorwebsockettransport.h
     ${CMAKE_CURRENT_SOURCE_DIR}/shared/inspector/inspectorwebsocketconnection.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shared/inspector/inspectorwebsocketconnection.h
     ${CMAKE_CURRENT_SOURCE_DIR}/shared/inspector/inspectorwebsocketserver.cpp
