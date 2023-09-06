@@ -46,7 +46,7 @@ endif()
 
 target_compile_definitions(dummyvpn PRIVATE MZ_DEBUG)
 target_compile_definitions(dummyvpn PRIVATE MZ_DUMMY)
-
+target_compile_definitions(dummyvpn PRIVATE FORCE_INSPECTOR true)
 # We should not build into the source dir
 # but that is how we are currently doing things, 
 # at least we no longer invoke python scripts to 
