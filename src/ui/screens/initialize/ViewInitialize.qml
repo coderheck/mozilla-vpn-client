@@ -28,7 +28,7 @@ Item {
         }
     }
 
-    MZRadialGradient {  
+    MZRadialGradient {
         anchors.fill: fallBackBackground
 
         gradient: Gradient {
@@ -99,6 +99,16 @@ Item {
             objectName: "swipeView"
             anchors.fill: parent
             currentIndex: 0
+            property string telemetryScreenId: currentIndex === 0 ? "sign_up" : `sign_up_${currentIndex + 1}`
+
+            onTelemetryScreenIdChanged: {
+                Glean.impression.signupScreenView.record({
+                    screen: telemetryScreenId,
+                    action: "impression",
+                });
+
+                previousTelemetryScreenId = telemetryScreenId
+            }
 
             Component.onCompleted: {
                 contentItem.maximumFlickVelocity = 5 * MZTheme.theme.maxContentWidth;
@@ -107,7 +117,9 @@ Item {
 
             Repeater {
                 id: repeater
+                objectName: "swipeViewRepeater"
                 model: onboardingModel
+                property int slidesCount: model.count
 
                 Loader {
                     id: loader
@@ -238,7 +250,11 @@ Item {
             labelText: MZI18n.GetHelpLinkTitle
             isLightTheme: false
             onClicked: {
-                Glean.sample.getHelpClickedInitialize.record();
+                Glean.interaction.getHelp.record({
+                    screen: swipeView.telemetryScreenId,
+                    action: "select",
+                    element_id: "get_help",
+                });
                 MZNavigator.requestScreen(VPN.ScreenGetHelp);
             }
             anchors {
@@ -304,7 +320,6 @@ Item {
                 }
 
                 MZInterLabel {
-                    
                     text: MZI18n.FreeTrialsStartYourFreeTrial
                     color: MZTheme.colors.white80
                     font.family: MZTheme.theme.fontInterSemiBoldFamily
@@ -345,10 +360,12 @@ Item {
                     Layout.fillWidth: true
                     width: undefined
                     onClicked: {
-                        const platform = Qt.platform.os;
-                        if (platform === "android" || platform === "ios") {
-                            return onboardingPanel.recordGleanEvtAndStartAuth(objectName)
-                        }
+                        Glean.interaction.onboardingCtaClick.record({
+                            screen: swipeView.telemetryScreenId,
+                            action: "select",
+                            element_id: "sign_up",
+                        });
+
                         VPN.authenticate();
                     }
                 }
@@ -360,10 +377,12 @@ Item {
                     linkColor: MZTheme.theme.whiteButton
                     width: undefined
                     onClicked: {
-                        const platform = Qt.platform.os;
-                        if (platform === "android" || platform === "ios") {
-                            return onboardingPanel.recordGleanEvtAndStartAuth(objectName)
-                        }
+                        Glean.interaction.onboardingCtaClick.record({
+                            screen: swipeView.telemetryScreenId,
+                            action: "select",
+                            element_id: "already_a_subscriber",
+                        });
+
                         VPN.authenticate();
                     }
                 }
@@ -403,15 +422,6 @@ Item {
 
         Component.onDestruction: {
             statusBarModifier.resetDefaults();
-        }
-
-        function recordGleanEvtAndStartAuth(ctaObjectName) {
-            Glean.sample.onboardingCtaClick.record({
-                "panel_id": currentPanelValues._panelId,
-                "panel_idx": swipeView.currentIndex.toString(),
-                "panel_cta": ctaObjectName
-            });
-            VPN.authenticate();
         }
     }
 }
