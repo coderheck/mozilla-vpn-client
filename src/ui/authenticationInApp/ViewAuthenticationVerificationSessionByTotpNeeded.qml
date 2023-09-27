@@ -11,13 +11,29 @@ import components 0.1
 import components.inAppAuth 0.1
 
 MZInAppAuthenticationBase {
+    id: authVerificationSessionByTotpNeeded
+
+    _telemetryScreenId: "enter_totp_verification_code"
+
     _viewObjectName: "authVerificationSessionByTotpNeeded"
     _menuButtonImageSource: "qrc:/nebula/resources/close-dark.svg"
     _menuButtonOnClick: () => {
         if (isReauthFlow) {
+            Glean.interaction.authenticationAborted.record({
+                screen: _telemetryScreenId,
+                action: "select",
+                element_id: "close",
+            });
+
             cancelAuthenticationFlow();
         } else {
-            VPN.cancelAuthentication();
+            Glean.interaction.authenticationInappStep.record({
+                screen: _telemetryScreenId,
+                action: "select",
+                element_id: "close",
+            });
+
+            MZAuthInApp.reset();
         }
     }
     _menuButtonAccessibleName: MZI18n.GlobalClose
@@ -29,6 +45,8 @@ MZInAppAuthenticationBase {
     _inputs: MZInAppAuthenticationInputs {
         objectName: "authVerificationSessionByTotpNeeded"
 
+        _telemetryScreenId: authVerificationSessionByTotpNeeded._telemetryScreenId
+        _buttonTelemetryId: "verify"
         _buttonEnabled: MZAuthInApp.state === MZAuthInApp.StateVerificationSessionByTotpNeeded && activeInput().text.length === MZAuthInApp.totpCodeLength && !activeInput().hasError
         _buttonOnClicked: (inputText) => { MZAuthInApp.verifySessionTotpCode(inputText) }
         _buttonText: MZI18n.InAppAuthVerifySecurityCodeButton
@@ -41,8 +59,15 @@ MZInAppAuthenticationBase {
         Layout.preferredWidth: parent.width
 
         MZCancelButton {
+            objectName: _viewObjectName + "-cancel"
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked: {
+                Glean.interaction.authenticationAborted.record({
+                    screen: _telemetryScreenId,
+                    action: "select",
+                    element_id: "cancel",
+                });
+
                 if (isReauthFlow) {
                     cancelAuthenticationFlow();
                 } else {
@@ -50,5 +75,12 @@ MZInAppAuthenticationBase {
                 }
             }
         }
+    }
+
+    Component.onCompleted: {
+        Glean.impression.authenticationInappStep.record({
+            screen: _telemetryScreenId,
+            action: "impression"
+        });
     }
 }

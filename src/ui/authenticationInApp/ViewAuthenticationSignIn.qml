@@ -13,6 +13,8 @@ import components.inAppAuth 0.1
 MZInAppAuthenticationBase {
     id: authSignIn
 
+    _telemetryScreenId: "enter_password"
+
     states:[
         State {
             when: isReauthFlow
@@ -44,8 +46,20 @@ MZInAppAuthenticationBase {
     _menuButtonImageMirror: MZLocalizer.isRightToLeft
     _menuButtonOnClick: () => {
         if (isReauthFlow) {
+            Glean.interaction.authenticationAborted.record({
+                screen: authSignIn._telemetryScreenId,
+                action: "select",
+                element_id: "back_arrow",
+            });
+
             cancelAuthenticationFlow();
         } else {
+            Glean.interaction.authenticationInappStep.record({
+                screen: authSignIn._telemetryScreenId,
+                action: "select",
+                element_id: "back_arrow",
+            });
+
             MZAuthInApp.reset();
         }
     }
@@ -58,6 +72,9 @@ MZInAppAuthenticationBase {
     _inputs: MZInAppAuthenticationInputs {
         objectName: "authSignIn"
         id: authInputs
+
+        _telemetryScreenId: authSignIn._telemetryScreenId
+        _buttonTelemetryId: "sign_in"
 
         _buttonEnabled: MZAuthInApp.state === MZAuthInApp.StateSignIn && !activeInput().hasError
         _buttonOnClicked: (inputText) => {
@@ -81,14 +98,30 @@ MZInAppAuthenticationBase {
         spacing: MZTheme.theme.windowMargin
 
         MZLinkButton {
+            objectName: _viewObjectName + "-forgotPassword"
             labelText: MZI18n.InAppAuthForgotPasswordLink
             anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: MZUrlOpener.openUrlLabel("forgotPassword")
+            onClicked: {
+                Glean.interaction.authPasswordResetRequest.record({
+                    screen: _telemetryScreenId,
+                    action: "select",
+                    element_id: "forgot_your_password",
+                });
+
+                MZUrlOpener.openUrlLabel("forgotPassword")
+            }
         }
 
         MZCancelButton {
+            objectName: _viewObjectName + "-cancel"
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked: {
+                Glean.interaction.authenticationAborted.record({
+                    screen: _telemetryScreenId,
+                    action: "select",
+                    element_id: "cancel",
+                });
+
                 if (isReauthFlow) {
                     cancelAuthenticationFlow();
                 } else {
@@ -96,5 +129,12 @@ MZInAppAuthenticationBase {
                 }
             }
         }
+    }
+
+    Component.onCompleted: {
+        Glean.impression.authenticationInappStep.record({
+            screen: _telemetryScreenId,
+            action: "impression"
+        });
     }
 }

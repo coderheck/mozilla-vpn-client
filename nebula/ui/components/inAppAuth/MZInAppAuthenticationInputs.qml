@@ -13,6 +13,8 @@ import components.forms 0.1
 
 ColumnLayout {
     id: base
+    property string _telemetryScreenId
+    property string _buttonTelemetryId
     property string _inputPlaceholderText: ""
     property string _inputErrorMessage: ""
     property alias _inputMethodHints: textInput.inputMethodHints
@@ -77,6 +79,12 @@ ColumnLayout {
                 width: MZTheme.theme.rowHeight
                 height: MZTheme.theme.rowHeight
                 onClicked: {
+                    Glean.interaction.authenticationInappStep.record({
+                        screen: _telemetryScreenId,
+                        action: "select",
+                        element_id: "paste",
+                    });
+
                    activeInput().paste();
                    activeInput().forceActiveFocus();
                 }
@@ -235,6 +243,12 @@ ColumnLayout {
                         MZAuthInApp.state === MZAuthInApp.StateVerifyingSessionEmailCode ||
                         MZAuthInApp.state === MZAuthInApp.StateVerifyingSessionTotpCode
         onClicked: {
+            Glean.interaction.authenticationInappStep.record({
+                screen: _telemetryScreenId,
+                action: "select",
+                element_id: _buttonTelemetryId
+            });
+
             disableActiveInput();
             _buttonOnClicked(activeInput().text);
         }
@@ -282,7 +296,7 @@ ColumnLayout {
             case MZAuthInApp.ErrorConnectionTimeout:
                 Glean.sample.authenticationError.record({ reason: "Timeout" });
 
-                // In case of a timeout we want to exit here 
+                // In case of a timeout we want to exit here
                 // to skip setting hasError - so the user can retry instantly
                 activeInput().enabled = true;
                 return;

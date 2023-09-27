@@ -9,6 +9,7 @@ import Mozilla.Shared 1.0
 
 ColumnLayout {
     Layout.alignment: Qt.AlignHCenter
+    property string _telemetryScreenId
 
     Text {
         text: MZI18n.InAppAuthTermsOfServiceAndPrivacyDisclaimer
@@ -24,8 +25,21 @@ ColumnLayout {
         lineHeight: MZTheme.theme.labelLineHeight
         onLinkActivated: {
             if (link === "terms-of-service") {
+                Glean.interaction.authenticationAborted.record({
+                    screen: _telemetryScreenId,
+                    action: "select",
+                    element_id: "terms_of_service",
+                });
+
                 return MZUrlOpener.openUrlLabel("termsOfService");
             }
+
+            Glean.interaction.authenticationAborted.record({
+                screen: _telemetryScreenId,
+                action: "select",
+                element_id: "privacy_notice",
+            });
+
             MZUrlOpener.openUrlLabel("privacyNotice");
         }
 

@@ -30,6 +30,8 @@ MZFlickable {
     property alias _disclaimers: disclaimers.data
     property alias _footerContent: footerContent.data
 
+    property string _telemetryScreenId
+
     id: authBase
     flickContentHeight: col.implicitHeight
 
@@ -75,7 +77,15 @@ MZFlickable {
                 Layout.rightMargin: MZTheme.theme.windowMargin
                 labelText: MZI18n.GetHelpLinkTitle
                 horizontalPadding: MZTheme.theme.windowMargin / 2
-                onClicked: MZNavigator.requestScreen(VPN.ScreenGetHelp)
+                onClicked: {
+                    Glean.interaction.getHelp.record({
+                        screen: _telemetryScreenId,
+                        action: "select",
+                        element_id: "get_help",
+                    })
+
+                    MZNavigator.requestScreen(VPN.ScreenGetHelp)
+                }
             }
         }
 
@@ -131,12 +141,20 @@ MZFlickable {
                 }
 
                 Loader {
+                    objectName: _viewObjectName + "-changeEmail"
                     Layout.alignment: Qt.AlignHCenter
                     active: _changeEmailLinkVisible
                     sourceComponent: MZLinkButton {
                         labelText: MZI18n.InAppAuthChangeEmailLink
                         visible: _changeEmailLinkVisible
-                        onClicked: MZAuthInApp.reset()
+                        onClicked: {
+                            Glean.interaction.authenticationInappStep.record({
+                                screen: _telemetryScreenId,
+                                action: "select",
+                                element_id: "change_email",
+                            });
+                            MZAuthInApp.reset()
+                        }
                     }
                 }
 
@@ -179,9 +197,6 @@ MZFlickable {
             Layout.leftMargin: MZTheme.theme.vSpacing
             Layout.rightMargin: MZTheme.theme.vSpacing
             Layout.bottomMargin: navbar.visible ? 0 : 34
-
-
         }
     }
-
 }

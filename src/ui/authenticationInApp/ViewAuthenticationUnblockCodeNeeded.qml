@@ -12,12 +12,27 @@ import components.forms 0.1
 import components.inAppAuth 0.1
 
 MZInAppAuthenticationBase {
+    id: authUnblockCodeNeeded
+
+    _telemetryScreenId: "enter_unblock_code"
     _viewObjectName: "authUnblockCodeNeeded"
     _menuButtonImageSource: "qrc:/nebula/resources/close-dark.svg"
     _menuButtonOnClick: () => {
         if (isReauthFlow) {
+            Glean.interaction.authenticationAborted.record({
+                screen: _telemetryScreenId,
+                action: "select",
+                element_id: "close",
+            });
+
             cancelAuthenticationFlow();
         } else {
+            Glean.interaction.authenticationInappStep.record({
+                screen: _telemetryScreenId,
+                action: "select",
+                element_id: "close",
+            });
+
             MZAuthInApp.reset();
         }
     }
@@ -28,6 +43,8 @@ MZInAppAuthenticationBase {
 
     _inputs: MZInAppAuthenticationInputs {
         objectName: "authUnblockCodeNeeded"
+        _telemetryScreenId: authUnblockCodeNeeded._telemetryScreenId
+        _buttonTelemetryId: "verify"
         _buttonEnabled: MZAuthInApp.state === MZAuthInApp.StateUnblockCodeNeeded && activeInput().text.length === MZAuthInApp.unblockCodeLength && !activeInput().hasError
         _buttonOnClicked: (inputText) => { MZAuthInApp.verifyUnblockCode(inputText) }
         _buttonText: MZI18n.InAppAuthVerifySecurityCodeButton
@@ -40,17 +57,31 @@ MZInAppAuthenticationBase {
         spacing: MZTheme.theme.windowMargin
 
         MZLinkButton {
+            objectName: _viewObjectName + "-resendCode"
             labelText: MZI18n.InAppAuthResendCodeLink
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked: {
+                 Glean.interaction.authVerificationCodeResend.record({
+                    screen: _telemetryScreenId,
+                    action: "select",
+                    element_id: "resend_code",
+                });
+
                 MZAuthInApp.resendUnblockCodeEmail();
                 MZErrorHandler.requestAlert(MZErrorHandler.AuthCodeSentAlert);
-            
+
             }
         }
         MZCancelButton {
+            objectName: _viewObjectName + "-cancel"
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked: {
+                Glean.interaction.authenticationAborted.record({
+                    screen: _telemetryScreenId,
+                    action: "select",
+                    element_id: "cancel",
+                });
+
                 if (isReauthFlow) {
                     cancelAuthenticationFlow();
                 } else {
@@ -58,5 +89,12 @@ MZInAppAuthenticationBase {
                 }
             }
         }
+    }
+
+    Component.onCompleted: {
+        Glean.impression.authenticationInappStep.record({
+            screen: _telemetryScreenId,
+            action: "impression"
+        });
     }
 }

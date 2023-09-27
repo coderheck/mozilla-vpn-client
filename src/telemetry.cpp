@@ -98,9 +98,6 @@ void Telemetry::initialize() {
   connect(vpn, &MozillaVPN::authenticationStarted, this,
           []() { mozilla::glean::sample::authentication_started.record(); });
 
-  connect(vpn, &MozillaVPN::authenticationAborted, this,
-          []() { mozilla::glean::sample::authentication_aborted.record(); });
-
   connect(vpn, &MozillaVPN::authenticationCompleted, this,
           []() { mozilla::glean::sample::authentication_completed.record(); });
 
