@@ -611,19 +611,17 @@ module.exports = {
     return json.value;
   },
 
-  async testLastInteractionEvent (options) {
-    const defaults = { action: "select" };
-    const {
-      eventName,
-      // When expectedEventCount is provided it will be asserted on.
-      // When it's not provided the last event will be tested.
-      expectedEventCount,
-      screen,
-      action,
-      elementId,
-    } = { ...defaults, ...options };
-
-    const events = await this.gleanTestGetValue("interaction", eventName, "main");
+  // By default gets the last recorded event.
+  // `offset` can be used to change that, it adds the offset from the last.
+  // So, for example, if we want the next to last event we give it an `offset` of 1.
+  async getOneEventOfType({
+    eventCategory,
+    eventName,
+    // When expectedEventCount is provided it will be asserted on.
+    // When it's not provided the last event will be tested.
+    expectedEventCount
+  }, offset = 0) {
+    const events = await this.gleanTestGetValue(eventCategory, eventName, "main");
     assert(events.length > 0);
 
     let computedEventCount = expectedEventCount;
@@ -633,10 +631,20 @@ module.exports = {
       assert.strictEqual(events.length, computedEventCount);
     }
 
-    const extras = events[computedEventCount - 1].extra;
-    assert.strictEqual(screen, extras.screen);
-    assert.strictEqual(action, extras.action);
-    assert.strictEqual(elementId, extras.element_id);
+    return events[computedEventCount - (1 + offset)];
+  },
+
+  async testLastInteractionEvent (options) {
+    const defaults = { eventCategory: "interaction", action: "select" };
+    const optionsWithDefaults = { ...defaults, ...options };
+
+    const lastEvent = await this.getOneEventOfType(optionsWithDefaults);
+
+    const { action, screen, elementId } = optionsWithDefaults;
+
+    assert.strictEqual(action, lastEvent.extra.action);
+    assert.strictEqual(screen, lastEvent.extra.screen);
+    assert.strictEqual(elementId, lastEvent.extra.element_id);
   },
 
   // Internal methods.
