@@ -1,3 +1,5 @@
+TaskCluster_QT/
+build
 3rdparty
 Makefile
 Makefile.*
